@@ -2,6 +2,9 @@
 
 A Chrome extension that fixes YouTube's fullscreen mode scroll functionality.
 
+https://github.com/user-attachments/assets/59757621-5116-4a6c-8c87-40877ee0f00f
+
+
 ## The Problem
 
 YouTube's fullscreen mode sometimes prevents you from scrolling through comments, related videos, and other content. This happens when YouTube adds a special attribute to elements that breaks normal scrolling behavior.
