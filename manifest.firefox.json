@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Restore YouTube Fullscreen Scroll",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "Removes the deprecate-fullerscreen-ui attribute from YouTube elements to restore scroll functionality to YouTube fullscreen mode.",
   "browser_specific_settings": {
     "gecko": {
-      "id": "{9cb3c75d-2173-4ab9-a84f-8c536e08d3e2}"
+      "id": "{c7d46953-f6ac-4ae5-bd19-f3471ff4639b}"
     }
   },
   "icons": {
