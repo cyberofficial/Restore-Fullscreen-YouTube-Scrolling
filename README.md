@@ -31,7 +31,7 @@ Note: Chrome Web Store updates may be delayed due to review processes. For the l
 6. The extension installs automatically
 
 #### Firefox
-1. Go to [GitHub Releases](https://github.com/cyberofficial/restore-youtube-scroll/releases)
+1. Go to [GitHub Releases](https://addons.mozilla.org/en-US/firefox/addon/youtube-fullscreen-scroll/)
 2. Download the XPI file
 3. Open Firefox and go to `about:addons`
 4. Click the gear icon and select "Install Add-on From File..."
