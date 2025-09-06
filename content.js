@@ -35,6 +35,9 @@
       if (document.getElementById(STYLE_ID)) return;
       
       const css = `
+        body.${ACTIVATION_CLASS} ytd-watch-flexy {
+          --ytd-watch-flexy-max-player-width: 100% !important;
+        }
         body.${ACTIVATION_CLASS} ytd-masthead,
         body.${ACTIVATION_CLASS} #secondary.ytd-watch-flexy {
           display: none !important;
@@ -57,6 +60,19 @@
           left: 0 !important;
           top: 0 !important;
         }
+        /* Hide page scrollbar while in emulated fullscreen mode without disabling scroll */
+        body.${ACTIVATION_CLASS} {
+          /* Firefox */
+          scrollbar-width: none !important;
+          /* IE 10+ */
+          -ms-overflow-style: none !important;
+        }
+        /* For WebKit-based browsers: hide scrollbar but keep scrolling */
+        body.${ACTIVATION_CLASS}::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
       `;
 
       const style = document.createElement('style');
@@ -67,8 +83,46 @@
     }
 
     function toggleScrollMode() {
+      const primary = document.querySelector('#primary');
+
+      // Toggle activation class on body
       document.body.classList.toggle(ACTIVATION_CLASS);
       const isActive = document.body.classList.contains(ACTIVATION_CLASS);
+
+  // If #primary exists, store/restore inline styles for margins and padding
+  if (primary) {
+        // Use dataset to temporarily store original inline styles
+        if (isActive) {
+          primary.dataset._origMarginLeft = primary.style.marginLeft || '';
+          primary.dataset._origPaddingTop = primary.style.paddingTop || '';
+          primary.dataset._origPaddingRight = primary.style.paddingRight || '';
+
+          primary.style.marginLeft = '0px';
+          primary.style.paddingTop = '0px';
+          primary.style.paddingRight = '0px';
+        } else {
+          primary.style.marginLeft = primary.dataset._origMarginLeft || '';
+          primary.style.paddingTop = primary.dataset._origPaddingTop || '';
+          primary.style.paddingRight = primary.dataset._origPaddingRight || '';
+
+          delete primary.dataset._origMarginLeft;
+          delete primary.dataset._origPaddingTop;
+          delete primary.dataset._origPaddingRight;
+        }
+      }
+
+      // Also handle #player top offset
+      const player = document.querySelector('#player');
+      if (player) {
+        if (isActive) {
+          player.dataset._origTop = player.style.top || '';
+          player.style.top = '50px';
+        } else {
+          player.style.top = player.dataset._origTop || '';
+          delete player.dataset._origTop;
+        }
+      }
+
       console.log(`[YT Scroll Fix] F11-mode ${isActive ? 'activated' : 'deactivated'}.`);
       window.dispatchEvent(new Event('resize'));
     }
