@@ -6,7 +6,11 @@
 
 A lightweight Chrome and Firefox extension that restores scroll functionality in YouTube's fullscreen mode.
 
-https://github.com/user-attachments/assets/59757621-5116-4a6c-8c87-40877ee0f00f
+Note: YouTube changed the way fullscreen is handled which broke earlier approaches. This repository now implements a robust solution (introduced in v1.0.13) that neutralizes YouTube's fullscreen hijack and applies an emulated fullscreen that keeps scrolling functional.
+
+## Experimental Status
+
+This extension is currently considered experimental. YouTube's fullscreen implementation changed; decent updates will be made only after careful investigation and testing of page changes. Expect intermittent maintenance and delayed fixes. The extension will be updated when a reliable, well-researched solution is identified and verified. Contributions and bug reports are welcome to help prioritize and accelerate fixes.
 
 ## Table of Contents
 
@@ -38,7 +42,16 @@ YouTube's fullscreen mode sometimes prevents users from scrolling through commen
 
 ## Solution
 
-This extension automatically detects and removes the problematic `deprecate-fullscreen-ui` attribute from YouTube elements. It continuously monitors the page for changes and handles dynamically loaded content, ensuring smooth scrolling functionality is restored in fullscreen mode.
+Older versions of this extension removed problematic attributes (for example `deprecate-fullscreen-ui`) to restore scrolling. YouTube recently removed or changed the DOM and behavior that made that approach unreliable.
+
+Current approach (v13):
+
+- Monkey-patch the Fullscreen API early at document_start so YouTube's player cannot hijack native fullscreen behavior.
+- Intercept the player's fullscreen button and emulate F11-style fullscreen using injected CSS and controlled inline styles.
+- Preserve and restore original inline styles for critical elements (for example `#primary`, `#player`) so I don't permanently break page layout.
+- Hide scrollbars visually while keeping the page scrollable, with cross-browser fallbacks (Chrome, Firefox, Edge).
+
+This approach is more invasive but much more reliable across YouTube updates.
 
 ## Installation
 
@@ -78,7 +91,8 @@ Visit the [Firefox Add-ons Store](https://addons.mozilla.org/en-US/firefox/addon
 5. Choose the downloaded XPI file
 6. Click "Add" when prompted
 
-> **Note**: Firefox version is currently only available through GitHub Releases (not Mozilla Add-ons store).
+> **Note**: Firefox version is currently being reviewed and will be updated/release when reviewed.
+> You'll have to load it temporarily.
 
 ## Usage
 
@@ -125,6 +139,17 @@ If scrolling doesn't work in fullscreen:
 - **Conflicts**: Disable other YouTube-related extensions temporarily to test
 - **Report issues**: [Create an issue](https://github.com/cyberofficial/Restore-Fullscreen-YouTube-Scrolling/issues) on GitHub
 
+### If the extension no longer restores scrolling
+
+- Ensure the extension is up-to-date (the current method was introduced in v1.0.13).
+- Try reloading the page and entering fullscreen again.
+- If scrolling partially works (e.g., mouse wheel but not touchpad), try toggling fullscreen with the video button once to reinitialize the emulation.
+- If the layout looks broken after toggling, the extension stores and restores inline styles; report the URL and steps so I can add a targeted fix.
+
+### Why I changed the method
+
+YouTube started preventing the old attribute-removal trick by changing where and how fullscreen state is applied. The new method neutralizes the platform-level API and applies our own predictable layout changes so scrolling and keyboard interaction remain available.
+
 ## Privacy
 
 This extension respects your privacy:
@@ -137,13 +162,19 @@ This extension respects your privacy:
 
 ## Technical Details
 
+
 The extension uses a content script that:
 
-- Monitors the DOM for the `deprecate-fullscreen-ui` attribute
-- Automatically removes this attribute when detected
-- Uses `MutationObserver` to handle dynamically loaded content
-- Runs with minimal performance impact
-- Requires no special permissions beyond content script access
+- Runs at document_start and monkey-patches the Fullscreen API functions (e.g., `requestFullscreen`) so the player cannot take exclusive control.
+- Injects a CSS stylesheet and toggles a body activation class to emulate fullscreen layout (player fills viewport while page remains scrollable).
+- Uses `MutationObserver` to detect the player's fullscreen button and attaches a click handler to toggle the emulated fullscreen.
+- Stores original inline styles for elements like `#primary` and `#player` and restores them when exiting emulated fullscreen.
+- Applies cross-browser scrollbar hiding (WebKit + Firefox + IE fallbacks) that hides visuals but preserves scrolling.
+
+Files of interest:
+- `content.js` - main content script implementing the fullscreen-API monkey-patch + CSS emulation
+- `manifest.chrome.json` / `manifest.firefox.json` - browser manifests
+- `build.ps1` - build script used to package the extension
 
 **Files:**
 - `content.js` - Main content script

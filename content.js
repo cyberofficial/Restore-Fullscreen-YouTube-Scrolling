@@ -61,14 +61,22 @@
           top: 0 !important;
         }
         /* Hide page scrollbar while in emulated fullscreen mode without disabling scroll */
-        body.${ACTIVATION_CLASS} {
-          /* Firefox */
+        html.${ACTIVATION_CLASS},
+        body.${ACTIVATION_CLASS},
+        body.${ACTIVATION_CLASS} #primary,
+        body.${ACTIVATION_CLASS} #page-manager,
+        body.${ACTIVATION_CLASS} ytd-watch-flexy {
+          /* Firefox: hide scrollbar visuals while keeping scrolling */
           scrollbar-width: none !important;
           /* IE 10+ */
           -ms-overflow-style: none !important;
         }
         /* For WebKit-based browsers: hide scrollbar but keep scrolling */
-        body.${ACTIVATION_CLASS}::-webkit-scrollbar {
+        html.${ACTIVATION_CLASS}::-webkit-scrollbar,
+        body.${ACTIVATION_CLASS}::-webkit-scrollbar,
+        body.${ACTIVATION_CLASS} #primary::-webkit-scrollbar,
+        body.${ACTIVATION_CLASS} #page-manager::-webkit-scrollbar,
+        body.${ACTIVATION_CLASS} ytd-watch-flexy::-webkit-scrollbar {
           display: none !important;
           width: 0 !important;
           height: 0 !important;
