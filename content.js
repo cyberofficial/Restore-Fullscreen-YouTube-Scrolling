@@ -338,6 +338,33 @@
       }
     };
 
+    const isPlainNavigationClick = (event) => {
+      if (event.defaultPrevented) return false;
+      if (event.button !== 0) return false;
+      if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return false;
+
+      const anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!anchor) return false;
+
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#')) return false;
+
+      const target = (anchor.getAttribute('target') || '').toLowerCase();
+      if (target === '_blank') return false;
+
+      return true;
+    };
+
+    document.addEventListener('click', (event) => {
+      if (!document.body.classList.contains(ACTIVATION_CLASS)) {
+        return;
+      }
+
+      if (isPlainNavigationClick(event)) {
+        exitFullscreenEmulation();
+      }
+    }, true);
+
     ['pagehide', 'beforeunload', 'popstate'].forEach((eventName) => {
       window.addEventListener(eventName, exitFullscreenEmulation);
     });
