@@ -37,6 +37,14 @@
       const css = `
         body.${ACTIVATION_CLASS} ytd-watch-flexy {
           --ytd-watch-flexy-max-player-width: 100% !important;
+          --ytd-watch-flexy-space-below-player: 0 !important;
+          --ytd-watch-flexy-panel-max-height: 100vh !important;
+          --ytd-watch-flexy-chat-max-height: 100vh !important;
+          --ytd-watch-flexy-structured-description-max-height: 100vh !important;
+          --ytd-watch-flexy-comments-panel-max-height: 100vh !important;
+          --ytd-comments-engagement-panel-content-height: 100vh !important;
+          background-color: #000 !important;
+          min-height: 100vh !important;
         }
         body.${ACTIVATION_CLASS} ytd-masthead,
         body.${ACTIVATION_CLASS} #secondary.ytd-watch-flexy {
@@ -46,19 +54,80 @@
           margin-top: 0 !important;
         }
         body.${ACTIVATION_CLASS} #columns,
-        body.${ACTIVATION_CLASS} #primary {
+        body.${ACTIVATION_CLASS} #primary,
+        body.${ACTIVATION_CLASS} #primary-inner {
           max-width: none !important;
+          width: 100% !important;
+        }
+        body.${ACTIVATION_CLASS} #player.ytd-watch-flexy,
+        body.${ACTIVATION_CLASS} #player-container-outer,
+        body.${ACTIVATION_CLASS} #player-container-inner,
+        body.${ACTIVATION_CLASS} #player-container,
+        body.${ACTIVATION_CLASS} ytd-player,
+        body.${ACTIVATION_CLASS} ytd-player #container {
+          position: relative !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          max-width: 100vw !important;
+          max-height: 100vh !important;
+          margin: 0 auto !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          background-color: #000 !important;
+        }
+        body.${ACTIVATION_CLASS} #player-container-inner {
+          padding-top: 0 !important;
+          flex-direction: column !important;
         }
         body.${ACTIVATION_CLASS} #player.ytd-watch-flexy {
-          height: 100vh !important;
+          overflow: hidden !important;
         }
-        body.${ACTIVATION_CLASS} .html5-video-player,
-        body.${ACTIVATION_CLASS} .html5-video-container,
-        body.${ACTIVATION_CLASS} .video-stream.html5-main-video {
+        body.${ACTIVATION_CLASS} #cinematics-container,
+        body.${ACTIVATION_CLASS} #cinematics,
+        body.${ACTIVATION_CLASS} .player-container-background {
+          display: none !important;
+        }
+        body.${ACTIVATION_CLASS} .html5-video-player {
+          position: relative !important;
           width: 100% !important;
           height: 100% !important;
-          left: 0 !important;
+          padding-bottom: 0 !important;
+          background-color: #000 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          z-index: 100 !important;
+        }
+        body.${ACTIVATION_CLASS} .html5-video-container {
+          position: absolute !important;
           top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        body.${ACTIVATION_CLASS} .video-stream.html5-main-video {
+          position: relative !important;
+          width: 100% !important;
+          height: 100% !important;
+          max-width: 100% !important;
+          max-height: 100% !important;
+          object-fit: contain !important;
+          background-color: #000 !important;
+        }
+        body.${ACTIVATION_CLASS} .ytp-chrome-bottom,
+        body.${ACTIVATION_CLASS} .ytp-chrome-top,
+        body.${ACTIVATION_CLASS} .ytp-gradient-bottom,
+        body.${ACTIVATION_CLASS} .ytp-gradient-top {
+          opacity: 1 !important;
+          visibility: visible !important;
+          z-index: 200 !important;
+        }
+        body.${ACTIVATION_CLASS} .ytp-chrome-bottom {
+          transition: opacity 0.2s ease !important;
         }
         /* Hide page scrollbar while in emulated fullscreen mode without disabling scroll */
         html.${ACTIVATION_CLASS},
@@ -90,25 +159,48 @@
       console.log('[YT Scroll Fix] Definitive CSS styles injected.');
     }
 
+    function whenElementReady(selector, callback, timeout = 5000) {
+      const existing = document.querySelector(selector);
+      if (existing) {
+        callback(existing);
+        return;
+      }
+
+      const observer = new MutationObserver(() => {
+        const element = document.querySelector(selector);
+        if (element) {
+          observer.disconnect();
+          callback(element);
+        }
+      });
+
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+
+      if (timeout > 0) {
+        setTimeout(() => observer.disconnect(), timeout);
+      }
+    }
+
     function toggleScrollMode() {
-      const primary = document.querySelector('#primary');
+      const willActivate = !document.body.classList.contains(ACTIVATION_CLASS);
 
-      // Toggle activation class on body
-      document.body.classList.toggle(ACTIVATION_CLASS);
-      const isActive = document.body.classList.contains(ACTIVATION_CLASS);
+      document.body.classList.toggle(ACTIVATION_CLASS, willActivate);
+      document.documentElement.classList.toggle(ACTIVATION_CLASS, willActivate);
 
-  // If #primary exists, store/restore inline styles for margins and padding
-  if (primary) {
-        // Use dataset to temporarily store original inline styles
-        if (isActive) {
-          primary.dataset._origMarginLeft = primary.style.marginLeft || '';
-          primary.dataset._origPaddingTop = primary.style.paddingTop || '';
-          primary.dataset._origPaddingRight = primary.style.paddingRight || '';
+      const primaryHandler = (primary, explicitState) => {
+        const active = typeof explicitState === 'boolean' ? explicitState : document.body.classList.contains(ACTIVATION_CLASS);
+
+        if (active) {
+          if (!('_origMarginLeft' in primary.dataset)) {
+            primary.dataset._origMarginLeft = primary.style.marginLeft || '';
+            primary.dataset._origPaddingTop = primary.style.paddingTop || '';
+            primary.dataset._origPaddingRight = primary.style.paddingRight || '';
+          }
 
           primary.style.marginLeft = '0px';
           primary.style.paddingTop = '0px';
           primary.style.paddingRight = '0px';
-        } else {
+        } else if ('_origMarginLeft' in primary.dataset) {
           primary.style.marginLeft = primary.dataset._origMarginLeft || '';
           primary.style.paddingTop = primary.dataset._origPaddingTop || '';
           primary.style.paddingRight = primary.dataset._origPaddingRight || '';
@@ -117,21 +209,37 @@
           delete primary.dataset._origPaddingTop;
           delete primary.dataset._origPaddingRight;
         }
-      }
+      };
 
-      // Also handle #player top offset
-      const player = document.querySelector('#player');
-      if (player) {
-        if (isActive) {
-          player.dataset._origTop = player.style.top || '';
-          player.style.top = '50px';
-        } else {
+      const playerHandler = (player, explicitState) => {
+        const active = typeof explicitState === 'boolean' ? explicitState : document.body.classList.contains(ACTIVATION_CLASS);
+
+        if (active) {
+          if (!('_origTop' in player.dataset)) {
+            player.dataset._origTop = player.style.top || '';
+          }
+          player.style.top = '0px';
+        } else if ('_origTop' in player.dataset) {
           player.style.top = player.dataset._origTop || '';
           delete player.dataset._origTop;
         }
+      };
+
+      const primary = document.querySelector('#primary');
+      if (primary) {
+        primaryHandler(primary, willActivate);
+      } else if (willActivate) {
+        whenElementReady('#primary', (el) => primaryHandler(el));
       }
 
-      console.log(`[YT Scroll Fix] F11-mode ${isActive ? 'activated' : 'deactivated'}.`);
+      const player = document.querySelector('#player');
+      if (player) {
+        playerHandler(player, willActivate);
+      } else if (willActivate) {
+        whenElementReady('#player', (el) => playerHandler(el));
+      }
+
+      console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
       window.dispatchEvent(new Event('resize'));
     }
 
