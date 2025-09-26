@@ -191,8 +191,13 @@
       }
     }
 
-    function toggleScrollMode() {
-      const willActivate = !document.body.classList.contains(ACTIVATION_CLASS);
+    function toggleScrollMode(forceState) {
+      const currentlyActive = document.body.classList.contains(ACTIVATION_CLASS);
+      const willActivate = typeof forceState === 'boolean' ? forceState : !currentlyActive;
+
+      if (willActivate === currentlyActive) {
+        return;
+      }
 
       document.body.classList.toggle(ACTIVATION_CLASS, willActivate);
       document.documentElement.classList.toggle(ACTIVATION_CLASS, willActivate);
@@ -239,14 +244,14 @@
       if (primary) {
         primaryHandler(primary, willActivate);
       } else if (willActivate) {
-        whenElementReady('#primary', (el) => primaryHandler(el));
+        whenElementReady('#primary', (el) => primaryHandler(el, willActivate));
       }
 
       const player = document.querySelector('#player');
       if (player) {
         playerHandler(player, willActivate);
       } else if (willActivate) {
-        whenElementReady('#player', (el) => playerHandler(el));
+        whenElementReady('#player', (el) => playerHandler(el, willActivate));
       }
 
       console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
@@ -316,7 +321,7 @@
       if (key === 'escape' && document.body.classList.contains(ACTIVATION_CLASS)) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        toggleScrollMode();
+        toggleScrollMode(false);
         return;
       }
 
@@ -327,16 +332,18 @@
       }
     }, true);
 
-    window.addEventListener('pagehide', () => {
+    const exitFullscreenEmulation = () => {
       if (document.body.classList.contains(ACTIVATION_CLASS)) {
-        toggleScrollMode();
+        toggleScrollMode(false);
       }
+    };
+
+    ['pagehide', 'beforeunload', 'popstate'].forEach((eventName) => {
+      window.addEventListener(eventName, exitFullscreenEmulation);
     });
 
-    window.addEventListener('beforeunload', () => {
-      if (document.body.classList.contains(ACTIVATION_CLASS)) {
-        toggleScrollMode();
-      }
+    ['yt-navigate-start', 'yt-navigate-finish', 'yt-page-data-updated'].forEach((eventName) => {
+      document.addEventListener(eventName, exitFullscreenEmulation, { capture: true });
     });
 
     initializeObserver();
