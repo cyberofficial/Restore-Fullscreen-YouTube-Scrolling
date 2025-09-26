@@ -15,6 +15,16 @@
 
   console.log('[YT Scroll Fix] Script running at document_start.');
 
+  const extensionApi = (() => {
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      return chrome;
+    }
+    if (typeof browser !== 'undefined' && browser.runtime) {
+      return browser;
+    }
+    return null;
+  })();
+
   // --- STAGE 1: Monkey-Patch the Fullscreen API ---
   // This code runs immediately, before YouTube's scripts can load.
   // We replace the native fullscreen functions with a dummy that does nothing.
@@ -241,6 +251,27 @@
 
       console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
       window.dispatchEvent(new Event('resize'));
+
+      if (extensionApi && extensionApi.runtime && typeof extensionApi.runtime.sendMessage === 'function') {
+        const message = { type: 'set-browser-fullscreen', activate: willActivate };
+
+        try {
+          const maybePromise = extensionApi.runtime.sendMessage(message, () => {
+            const err = extensionApi.runtime && extensionApi.runtime.lastError;
+            if (err) {
+              console.warn('[YT Scroll Fix] Browser fullscreen sync failed:', err.message || err);
+            }
+          });
+
+          if (maybePromise && typeof maybePromise.then === 'function') {
+            maybePromise.catch((error) => {
+              console.warn('[YT Scroll Fix] Browser fullscreen sync failed:', error);
+            });
+          }
+        } catch (error) {
+          console.warn('[YT Scroll Fix] Browser fullscreen sync failed:', error);
+        }
+      }
     }
 
     function initializeObserver() {

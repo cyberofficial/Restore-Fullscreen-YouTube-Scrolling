@@ -16,8 +16,9 @@
 # INPUT FILES REQUIRED:
 # - manifest.chrome.json  (Chrome extension manifest)
 # - manifest.firefox.json (Firefox extension manifest) 
-# - content.js           (Extension content script)
-# - scroll-bar.png       (Extension icon)
+# - background.js       (Background service worker)
+# - content.js          (Extension content script)
+# - scroll-bar.png      (Extension icon)
 #
 # OUTPUT STRUCTURE:
 # builds/
@@ -95,6 +96,7 @@ Write-Host "✓ Created build directories" -ForegroundColor Gray
 # Define the files that must be included in every extension package
 # These are the core files needed for the extension to function
 $requiredFiles = @(
+    "background.js",  # Background service worker controlling browser fullscreen
     "content.js",      # Main extension script that runs on YouTube pages
     "scroll-bar.png"   # Extension icon displayed in browser
 )
