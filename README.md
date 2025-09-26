@@ -8,6 +8,11 @@ A privacy-respecting browser extension that restores scrolling, comments, and na
 
 > Status: YouTube’s player is a moving target. Releases land after targeted testing, but breaking changes from YouTube can still slip through. If you spot a regression, open an issue with the video URL and reproduction steps.
 
+
+https://github.com/user-attachments/assets/55fe1788-2a6a-4f72-a76f-583d2687e917
+
+
+
 ## Table of contents
 
 - [Overview](#overview)
