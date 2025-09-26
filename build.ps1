@@ -115,6 +115,69 @@ foreach ($file in $requiredFiles) {
     Write-Host "  ✓ Found: $file" -ForegroundColor Gray
 }
 
+$chromeManifestPath = Join-Path $scriptDir "manifest.chrome.json"
+$firefoxManifestPath = Join-Path $scriptDir "manifest.firefox.json"
+
+if (-not (Test-Path $chromeManifestPath)) {
+    Write-Error "ERROR: Chrome manifest not found at: $chromeManifestPath"
+    exit 1
+}
+
+function Get-NextPatchVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$CurrentVersion
+    )
+
+    $parts = $CurrentVersion -split '\.'
+    if ($parts.Length -lt 1) {
+        throw "Version '$CurrentVersion' is not in a valid dotted format."
+    }
+
+    $numericParts = @()
+    foreach ($part in $parts) {
+        try {
+            $numericParts += [int]$part
+        } catch {
+            throw "Version segment '$part' in '$CurrentVersion' is not numeric."
+        }
+    }
+
+    $lastIndex = $numericParts.Length - 1
+    $numericParts[$lastIndex]++
+
+    $newParts = $numericParts | ForEach-Object { $_.ToString() }
+    return ($newParts -join '.')
+}
+
+function Update-ManifestVersions {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ChromeManifestPath,
+        [Parameter(Mandatory = $true)]
+        [string]$FirefoxManifestPath
+    )
+
+    $chromeManifestJson = Get-Content $ChromeManifestPath -Raw
+    $chromeManifest = $chromeManifestJson | ConvertFrom-Json
+    $currentVersion = $chromeManifest.version
+    $newVersion = Get-NextPatchVersion -CurrentVersion $currentVersion
+    $chromeManifest.version = $newVersion
+    $chromeManifest | ConvertTo-Json -Depth 10 | Set-Content -Path $ChromeManifestPath -Encoding UTF8
+
+    if (Test-Path $FirefoxManifestPath) {
+        $firefoxManifestJson = Get-Content $FirefoxManifestPath -Raw
+        $firefoxManifest = $firefoxManifestJson | ConvertFrom-Json
+        $firefoxManifest.version = $newVersion
+        $firefoxManifest | ConvertTo-Json -Depth 10 | Set-Content -Path $FirefoxManifestPath -Encoding UTF8
+    }
+
+    Write-Host "Version bumped: $currentVersion -> $newVersion" -ForegroundColor Yellow
+    return $newVersion
+}
+
+$updatedVersion = Update-ManifestVersions -ChromeManifestPath $chromeManifestPath -FirefoxManifestPath $firefoxManifestPath
+
 # =============================================================================
 # EXTENSION PACKAGE CREATION FUNCTION
 # =============================================================================

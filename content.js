@@ -327,6 +327,18 @@
       }
     }, true);
 
+    window.addEventListener('pagehide', () => {
+      if (document.body.classList.contains(ACTIVATION_CLASS)) {
+        toggleScrollMode();
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (document.body.classList.contains(ACTIVATION_CLASS)) {
+        toggleScrollMode();
+      }
+    });
+
     initializeObserver();
   };
 
