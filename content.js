@@ -265,12 +265,36 @@
     }
 
     injectCss();
-    
+
+    const isTypingContext = (element) => {
+      if (!element) return false;
+      if (element.isContentEditable) return true;
+      const tag = element.tagName;
+      if (!tag) return false;
+      const editableTags = ['INPUT', 'TEXTAREA'];
+      if (editableTags.includes(tag)) return true;
+      if (element.closest('[contenteditable="true"], [contenteditable=""]')) return true;
+      if (tag === 'BUTTON' || tag === 'SELECT') return true;
+      return false;
+    };
+
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && document.body.classList.contains(ACTIVATION_CLASS)) {
+      const key = (event.key || '').toLowerCase();
+      const modifierPressed = event.altKey || event.ctrlKey || event.metaKey;
+
+      if (key === 'escape' && document.body.classList.contains(ACTIVATION_CLASS)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        toggleScrollMode();
+        return;
+      }
+
+      if (key === 'f' && !modifierPressed && !isTypingContext(event.target) && !event.repeat) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
         toggleScrollMode();
       }
-    });
+    }, true);
 
     initializeObserver();
   };
