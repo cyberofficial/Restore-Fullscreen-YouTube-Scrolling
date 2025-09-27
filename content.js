@@ -185,6 +185,7 @@
           max-height: 100% !important;
           object-fit: contain !important;
           border-radius: inherit !important;
+          background-color: #000 !important;
         }
         body.${ACTIVATION_CLASS} #ytd-player,
         body.${ACTIVATION_CLASS} #ytd-player.style-scope.ytd-watch-flexy,
