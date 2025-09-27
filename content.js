@@ -229,6 +229,37 @@
       }
     }
 
+    const isWatchUrl = (value) => {
+      try {
+        const url = new URL(value, window.location.origin);
+        return url.hostname.includes('youtube.com') && url.pathname === '/watch';
+      } catch (error) {
+        return false;
+      }
+    };
+
+    let pendingWatchNavigation = false;
+    let pendingWatchTimeout = null;
+
+    const markPendingWatchNavigation = () => {
+      pendingWatchNavigation = true;
+      if (pendingWatchTimeout) {
+        clearTimeout(pendingWatchTimeout);
+      }
+      pendingWatchTimeout = setTimeout(() => {
+        pendingWatchNavigation = false;
+        pendingWatchTimeout = null;
+      }, 5000);
+    };
+
+    const clearPendingWatchNavigation = () => {
+      if (pendingWatchTimeout) {
+        clearTimeout(pendingWatchTimeout);
+        pendingWatchTimeout = null;
+      }
+      pendingWatchNavigation = false;
+    };
+
     function toggleScrollMode(forceState) {
       const currentlyActive = document.body.classList.contains(ACTIVATION_CLASS);
       const willActivate = typeof forceState === 'boolean' ? forceState : !currentlyActive;
@@ -370,7 +401,19 @@
       }
     }, true);
 
-    const exitFullscreenEmulation = () => {
+    const exitFullscreenEmulation = (options = {}) => {
+      const { ignorePersistence = false } = options;
+
+      if (!ignorePersistence) {
+        if (pendingWatchNavigation) {
+          return;
+        }
+
+        if (isWatchUrl(window.location.href)) {
+          return;
+        }
+      }
+
       if (document.body.classList.contains(ACTIVATION_CLASS)) {
         toggleScrollMode(false);
       }
@@ -399,17 +442,45 @@
       }
 
       if (isPlainNavigationClick(event)) {
-        exitFullscreenEmulation();
+        const href = event.target.closest('a[href]').href;
+
+        if (href && isWatchUrl(href)) {
+          markPendingWatchNavigation();
+        } else {
+          clearPendingWatchNavigation();
+          exitFullscreenEmulation({ ignorePersistence: true });
+        }
       }
     }, true);
 
-    ['pagehide', 'beforeunload', 'popstate'].forEach((eventName) => {
-      window.addEventListener(eventName, exitFullscreenEmulation);
+    window.addEventListener('pagehide', () => {
+      exitFullscreenEmulation();
     });
 
-    ['yt-navigate-start', 'yt-navigate-finish', 'yt-page-data-updated'].forEach((eventName) => {
-      document.addEventListener(eventName, exitFullscreenEmulation, { capture: true });
+    window.addEventListener('beforeunload', () => {
+      exitFullscreenEmulation({ ignorePersistence: true });
     });
+
+    window.addEventListener('popstate', () => {
+      if (isWatchUrl(window.location.href)) {
+        markPendingWatchNavigation();
+      } else {
+        clearPendingWatchNavigation();
+        exitFullscreenEmulation({ ignorePersistence: true });
+      }
+    });
+
+    const handleYoutubeNavigation = () => {
+      if (isWatchUrl(window.location.href)) {
+        markPendingWatchNavigation();
+      } else {
+        clearPendingWatchNavigation();
+        exitFullscreenEmulation({ ignorePersistence: true });
+      }
+    };
+
+    document.addEventListener('yt-navigate-finish', handleYoutubeNavigation, { capture: true });
+    document.addEventListener('yt-page-data-updated', handleYoutubeNavigation, { capture: true });
 
     initializeObserver();
   };
