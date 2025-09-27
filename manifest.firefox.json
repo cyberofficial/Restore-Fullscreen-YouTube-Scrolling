@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Restore YouTube Fullscreen Scroll",
-  "version": "1.0.32",
+  "version": "1.0.34",
   "description": "Restores scroll functionality to YouTube fullscreen mode by preventing the player from taking over.",
   "browser_specific_settings": {
     "gecko": {

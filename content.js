@@ -55,8 +55,7 @@
           --ytd-comments-engagement-panel-content-height: 100vh !important;
           min-height: 100vh !important;
         }
-        body.${ACTIVATION_CLASS} ytd-masthead,
-        body.${ACTIVATION_CLASS} #secondary.ytd-watch-flexy {
+        body.${ACTIVATION_CLASS} ytd-masthead {
           display: none !important;
         }
         body.${ACTIVATION_CLASS} #page-manager.ytd-app {
@@ -67,6 +66,40 @@
         body.${ACTIVATION_CLASS} #primary-inner {
           max-width: none !important;
           width: 100% !important;
+        }
+        body.${ACTIVATION_CLASS} #columns.ytd-watch-flexy {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 24px !important;
+        }
+        body.${ACTIVATION_CLASS} #primary.ytd-watch-flexy {
+          order: 1 !important;
+        }
+        body.${ACTIVATION_CLASS} #secondary.ytd-watch-flexy {
+          order: 2 !important;
+          display: block !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        body.${ACTIVATION_CLASS} #primary-inner.ytd-watch-flexy {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 24px !important;
+        }
+        body.${ACTIVATION_CLASS} #comments,
+        body.${ACTIVATION_CLASS} ytd-comments {
+          max-height: 60vh !important;
+          overflow-y: auto !important;
+          scrollbar-width: thin !important;
+        }
+        body.${ACTIVATION_CLASS} #comments::-webkit-scrollbar,
+        body.${ACTIVATION_CLASS} ytd-comments::-webkit-scrollbar {
+          width: 6px !important;
+        }
+        body.${ACTIVATION_CLASS} #comments::-webkit-scrollbar-thumb,
+        body.${ACTIVATION_CLASS} ytd-comments::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.3) !important;
+          border-radius: 3px !important;
         }
         body.${ACTIVATION_CLASS} #player.ytd-watch-flexy,
         body.${ACTIVATION_CLASS} #player-container-outer,
