@@ -267,6 +267,15 @@
       }
     };
 
+    const isShortsUrl = (value) => {
+      try {
+        const url = new URL(value, window.location.origin);
+        return url.hostname.includes('youtube.com') && url.pathname.startsWith('/shorts');
+      } catch (error) {
+        return false;
+      }
+    };
+
     let pendingWatchNavigation = false;
     let pendingWatchTimeout = null;
 
@@ -294,6 +303,10 @@
       const willActivate = typeof forceState === 'boolean' ? forceState : !currentlyActive;
 
       if (willActivate === currentlyActive) {
+        return;
+      }
+
+      if (willActivate && (!isWatchUrl(window.location.href) || isShortsUrl(window.location.href))) {
         return;
       }
 
@@ -423,7 +436,10 @@
         return;
       }
 
-      if (key === 'f' && !modifierPressed && !isTypingContext(event.target) && !event.repeat) {
+      if (key === 'f' && !modifierPressed && !event.repeat) {
+        if (!isWatchUrl(window.location.href) || isShortsUrl(window.location.href) || isTypingContext(event.target)) {
+          return;
+        }
         event.preventDefault();
         event.stopImmediatePropagation();
         toggleScrollMode();
@@ -503,6 +519,10 @@
       if (isWatchUrl(window.location.href)) {
         markPendingWatchNavigation();
       } else {
+        if (isShortsUrl(window.location.href)) {
+          exitFullscreenEmulation({ ignorePersistence: true });
+          return;
+        }
         clearPendingWatchNavigation();
         exitFullscreenEmulation({ ignorePersistence: true });
       }
