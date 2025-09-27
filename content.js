@@ -123,6 +123,15 @@
           max-width: 100% !important;
           max-height: 100% !important;
           object-fit: contain !important;
+          border-radius: inherit !important;
+        }
+        body.${ACTIVATION_CLASS} #ytd-player,
+        body.${ACTIVATION_CLASS} #ytd-player.style-scope.ytd-watch-flexy,
+        body.${ACTIVATION_CLASS} #movie_player,
+        body.${ACTIVATION_CLASS} #movie_player.ytp-fullscreen,
+        body.${ACTIVATION_CLASS} .html5-video-player,
+        body.${ACTIVATION_CLASS} .html5-video-container {
+          border-radius: 0 !important;
         }
         body.${ACTIVATION_CLASS} .ytp-chrome-bottom,
         body.${ACTIVATION_CLASS} .ytp-chrome-top,
