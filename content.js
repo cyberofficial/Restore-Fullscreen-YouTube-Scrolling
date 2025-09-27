@@ -68,27 +68,43 @@
           width: 100% !important;
         }
         body.${ACTIVATION_CLASS} #columns.ytd-watch-flexy {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 24px !important;
+          display: grid !important;
+          grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr) !important;
+          grid-template-rows:
+            [player-start] auto
+            [player-end metadata-start] auto
+            [metadata-end comments-start] auto
+            [comments-end] !important;
+          grid-auto-rows: auto !important;
+          align-items: flex-start !important;
+          column-gap: 24px !important;
+          row-gap: 24px !important;
         }
-        body.${ACTIVATION_CLASS} #primary.ytd-watch-flexy {
-          order: 1 !important;
-        }
-        body.${ACTIVATION_CLASS} #secondary.ytd-watch-flexy {
-          order: 2 !important;
-          display: block !important;
-          width: 100% !important;
-          max-width: 100% !important;
-        }
+        body.${ACTIVATION_CLASS} #primary.ytd-watch-flexy,
         body.${ACTIVATION_CLASS} #primary-inner.ytd-watch-flexy {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 24px !important;
+          display: contents !important;
+          min-width: 0 !important;
+        }
+        body.${ACTIVATION_CLASS} #primary-inner.ytd-watch-flexy > *:not(#comments) {
+          grid-column: 1 / -1 !important;
+        }
+        body.${ACTIVATION_CLASS} #below {
+          display: contents !important;
+        }
+        body.${ACTIVATION_CLASS} #below > *:not(ytd-comments) {
+          grid-column: 1 / -1 !important;
+        }
+        body.${ACTIVATION_CLASS} ytd-watch-metadata.watch-active-metadata {
+          grid-column: 1 / -1 !important;
+          grid-row: metadata-start / metadata-end !important;
         }
         body.${ACTIVATION_CLASS} #comments,
         body.${ACTIVATION_CLASS} ytd-comments {
-          max-height: 60vh !important;
+          grid-column: 1 / 2 !important;
+          grid-row: comments-start / comments-end !important;
+          min-width: 0 !important;
+          min-height: 0 !important;
+          align-self: stretch !important;
           overflow-y: auto !important;
           scrollbar-width: thin !important;
         }
@@ -100,6 +116,18 @@
         body.${ACTIVATION_CLASS} ytd-comments::-webkit-scrollbar-thumb {
           background-color: rgba(255, 255, 255, 0.3) !important;
           border-radius: 3px !important;
+        }
+        body.${ACTIVATION_CLASS} #secondary.ytd-watch-flexy {
+          grid-column: 2 / 3 !important;
+          grid-row: comments-start / comments-end !important;
+          min-width: 0 !important;
+          min-height: 0 !important;
+          align-self: start !important;
+          overflow-y: auto !important;
+        }
+        body.${ACTIVATION_CLASS} #secondary-inner,
+        body.${ACTIVATION_CLASS} #related {
+          min-height: 0 !important;
         }
         body.${ACTIVATION_CLASS} #player.ytd-watch-flexy,
         body.${ACTIVATION_CLASS} #player-container-outer,
