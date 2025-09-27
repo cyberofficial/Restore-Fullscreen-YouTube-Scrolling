@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Restore YouTube Fullscreen Scroll",
-  "version": "1.0.29",
+  "version": "1.0.31",
   "description": "Restores scroll functionality to YouTube fullscreen mode by preventing the player from taking over.",
   "icons": {
     "128": "scroll-bar.png"

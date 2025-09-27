@@ -53,7 +53,6 @@
           --ytd-watch-flexy-structured-description-max-height: 100vh !important;
           --ytd-watch-flexy-comments-panel-max-height: 100vh !important;
           --ytd-comments-engagement-panel-content-height: 100vh !important;
-          background-color: #000 !important;
           min-height: 100vh !important;
         }
         body.${ACTIVATION_CLASS} ytd-masthead,
@@ -84,7 +83,6 @@
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          background-color: #000 !important;
         }
         body.${ACTIVATION_CLASS} #player-container-inner {
           padding-top: 0 !important;
@@ -103,7 +101,6 @@
           width: 100% !important;
           height: 100% !important;
           padding-bottom: 0 !important;
-          background-color: #000 !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
@@ -126,7 +123,6 @@
           max-width: 100% !important;
           max-height: 100% !important;
           object-fit: contain !important;
-          background-color: #000 !important;
         }
         body.${ACTIVATION_CLASS} .ytp-chrome-bottom,
         body.${ACTIVATION_CLASS} .ytp-chrome-top,
