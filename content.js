@@ -97,6 +97,8 @@
         body.${ACTIVATION_CLASS} ytd-watch-metadata.watch-active-metadata {
           grid-column: 1 / -1 !important;
           grid-row: metadata-start / metadata-end !important;
+          padding: 22px !important;
+          box-sizing: border-box !important;
         }
         body.${ACTIVATION_CLASS} #comments,
         body.${ACTIVATION_CLASS} ytd-comments {
@@ -107,6 +109,8 @@
           align-self: stretch !important;
           overflow-y: auto !important;
           scrollbar-width: thin !important;
+          padding: 22px !important;
+          box-sizing: border-box !important;
         }
         body.${ACTIVATION_CLASS} #comments::-webkit-scrollbar,
         body.${ACTIVATION_CLASS} ytd-comments::-webkit-scrollbar {
@@ -124,6 +128,8 @@
           min-height: 0 !important;
           align-self: start !important;
           overflow-y: auto !important;
+          padding: 22px !important;
+          box-sizing: border-box !important;
         }
         body.${ACTIVATION_CLASS} #secondary-inner,
         body.${ACTIVATION_CLASS} #related {
