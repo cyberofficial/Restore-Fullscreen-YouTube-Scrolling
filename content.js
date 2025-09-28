@@ -490,8 +490,10 @@
       '.ytp-progress-bar'
     ];
 
-  let controlResizeHandler = null;
-  let resizeQueued = false;
+    let controlResizeHandler = null;
+    let resizeQueued = false;
+    let skipNextResize = false;
+    let syntheticResizePending = false;
 
     const captureOriginalStyles = (element, styles) => {
       if (element.dataset[CONTROL_DATA_KEY]) {
@@ -617,7 +619,19 @@
       });
     };
 
-    const applyControlAdjustments = () => {
+    const scheduleSyntheticResize = () => {
+      if (syntheticResizePending) {
+        return;
+      }
+      syntheticResizePending = true;
+      requestAnimationFrame(() => {
+        syntheticResizePending = false;
+        skipNextResize = true;
+        window.dispatchEvent(new Event('resize'));
+      });
+    };
+
+    const applyControlAdjustments = ({ suppressRemeasure = false } = {}) => {
       const playerWidth = getPlayerWidth();
       debugLog('Applying control adjustments', { playerWidth });
 
@@ -632,6 +646,10 @@
           });
         });
       });
+
+      if (!suppressRemeasure) {
+        scheduleSyntheticResize();
+      }
 
       debugLog('Control adjustments complete');
     };
@@ -661,6 +679,10 @@
             if (!document.body.classList.contains(ACTIVATION_CLASS)) {
               return;
             }
+            if (skipNextResize) {
+              skipNextResize = false;
+              return;
+            }
             if (resizeQueued) {
               return;
             }
@@ -668,7 +690,7 @@
             requestAnimationFrame(() => {
               resizeQueued = false;
               debugLog('Resize triggered reapplication of control adjustments.');
-              applyControlAdjustments();
+              applyControlAdjustments({ suppressRemeasure: true });
             });
           };
           window.addEventListener('resize', controlResizeHandler);
@@ -792,8 +814,8 @@
         });
       }
 
-      console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
-      window.dispatchEvent(new Event('resize'));
+  console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
+  scheduleSyntheticResize();
 
       if (extensionApi && extensionApi.runtime && typeof extensionApi.runtime.sendMessage === 'function') {
         const message = { type: 'set-browser-fullscreen', activate: willActivate };
