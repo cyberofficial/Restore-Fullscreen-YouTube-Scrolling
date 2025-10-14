@@ -51,6 +51,8 @@ if (extensionApi && extensionApi.runtime && extensionApi.windows) {
           }
           api.update(windowId, { state: 'fullscreen' }, () => finish({ state: 'fullscreen' }));
         } else {
+          // Already fullscreen, preserve this state
+          lastWindowStates.set(windowId, 'fullscreen');
           finish({ state: 'fullscreen', already: true });
         }
       } else {

@@ -874,6 +874,18 @@
       return false;
     };
 
+    document.addEventListener('dblclick', (event) => {
+      if (!isWatchUrl(window.location.href) || isShortsUrl(window.location.href) || isTypingContext(event.target)) {
+        return;
+      }
+      const videoElement = event.target.closest('.html5-main-video, .video-stream');
+      if (videoElement) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        toggleScrollMode();
+      }
+    }, true);
+
     document.addEventListener('keydown', (event) => {
       const key = (event.key || '').toLowerCase();
       const modifierPressed = event.altKey || event.ctrlKey || event.metaKey;
