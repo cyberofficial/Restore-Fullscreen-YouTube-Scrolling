@@ -899,20 +899,15 @@
 
       if (key === 'f' && !modifierPressed && !event.repeat) {
         if (isWatchUrl(window.location.href) && !isShortsUrl(window.location.href)) {
-          const inScrollMode = document.body.classList.contains(ACTIVATION_CLASS);
-          
-          // Always allow exiting scroll mode with F
-          if (inScrollMode) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            toggleScrollMode(false);
-          } 
-          // Only enter scroll mode if not in a typing context
-          else if (!isTypingContext(event.target)) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            toggleScrollMode(true);
+          // If user is typing, don't interfere at all
+          if (isTypingContext(event.target)) {
+            return;
           }
+          
+          // Only toggle fullscreen when NOT in a typing context
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          toggleScrollMode();
         }
         return;
       }
