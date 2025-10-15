@@ -874,7 +874,7 @@
       return false;
     };
 
-    document.addEventListener('dblclick', (event) => {
+    window.addEventListener('dblclick', (event) => {
       if (!isWatchUrl(window.location.href) || isShortsUrl(window.location.href) || isTypingContext(event.target)) {
         return;
       }
@@ -886,7 +886,7 @@
       }
     }, true);
 
-    document.addEventListener('keydown', (event) => {
+    window.addEventListener('keydown', (event) => {
       const key = (event.key || '').toLowerCase();
       const modifierPressed = event.altKey || event.ctrlKey || event.metaKey;
 
@@ -898,12 +898,12 @@
       }
 
       if (key === 'f' && !modifierPressed && !event.repeat) {
-        if (!isWatchUrl(window.location.href) || isShortsUrl(window.location.href) || isTypingContext(event.target)) {
-          return;
+        if (isWatchUrl(window.location.href) && !isShortsUrl(window.location.href)) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          toggleScrollMode();
         }
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        toggleScrollMode();
+        return;
       }
     }, true);
 
