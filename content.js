@@ -726,6 +726,12 @@
       pendingWatchNavigation = false;
     };
 
+    function isTheatreModeActive() {
+      const videoContainer = document.querySelector('.html5-video-container');
+      if (!videoContainer) return false;
+      return videoContainer.offsetWidth >= window.innerWidth - 10; // Allow small tolerance
+    }
+
     function toggleScrollMode(forceState) {
       const currentlyActive = document.body.classList.contains(ACTIVATION_CLASS);
       const willActivate = typeof forceState === 'boolean' ? forceState : !currentlyActive;
@@ -743,6 +749,21 @@
 
       if (willActivate && (!isWatchUrl(window.location.href) || isShortsUrl(window.location.href))) {
         return;
+      }
+
+      // Check theatre mode state before applying any changes
+      const currentlyInTheatre = isTheatreModeActive();
+
+      // Toggle theatre mode along with fullscreen emulation
+      const theatreButton = document.querySelector('.ytp-size-button.ytp-button');
+      if (theatreButton) {
+        if (willActivate && !currentlyInTheatre) {
+          // Entering fullscreen emulation: activate theatre if not already active
+          theatreButton.click();
+        } else if (!willActivate && currentlyInTheatre) {
+          // Exiting fullscreen emulation: deactivate theatre if currently active
+          theatreButton.click();
+        }
       }
 
       document.body.classList.toggle(ACTIVATION_CLASS, willActivate);
@@ -814,8 +835,9 @@
         });
       }
 
-  console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
-  scheduleSyntheticResize();
+      console.log(`[YT Scroll Fix] F11-mode ${willActivate ? 'activated' : 'deactivated'}.`);
+
+      scheduleSyntheticResize();
 
       if (extensionApi && extensionApi.runtime && typeof extensionApi.runtime.sendMessage === 'function') {
         const message = { type: 'set-browser-fullscreen', activate: willActivate };
